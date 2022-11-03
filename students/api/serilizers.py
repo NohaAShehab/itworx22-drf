@@ -13,7 +13,64 @@ from students.models import Student, Track
 #     track = serializers.PrimaryKeyRelatedField(allow_null=True,
 #                 queryset=Track.objects.all(), required=False)
 
+
+
+
+# class StudentSerilalizer(serializers.ModelSerializer):
+#     track_name = serializers.StringRelatedField(source="track")
+#     class Meta:
+#         model = Student
+#         fields = '__all__'
+
+####################### GeT track infromation
+
+class TrackSerilalizer(serializers.ModelSerializer):
+    class Meta:
+        model = Track
+        fields = ["id", "name"]
+
+
 class StudentSerilalizer(serializers.ModelSerializer):
+    # track_name = serializers.StringRelatedField(source="track")
+    track = TrackSerilalizer(read_only=True)
+    track_id = serializers.IntegerField(write_only=True)
+    t_name = serializers.CharField(write_only=True)
     class Meta:
         model = Student
         fields = '__all__'
+        fields.__add__("track_id")
+        fields.__add__("t_name")
+
+        
+    def create(self, validated_data):
+        print(validated_data)
+        t_name = validated_data.pop("t_name")
+        print(t_name)
+        student=super(StudentSerilalizer, self).create(validated_data)
+
+        try:
+            track_obj  = Track.objects.filter(name=t_name)[0]
+        except:
+            track_obj = Track.objects.create(name=t_name)
+
+        student.track = track_obj
+        student.save()
+        return student
+
+
+    def update(self, instance, validated_data):
+        student = super(StudentSerilalizer, self).update(instance, validated_data)
+        return student
+
+        
+
+
+
+
+
+
+
+
+
+
+

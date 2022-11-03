@@ -16,7 +16,27 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+from students.api.class_based_Views import StudentViewSet
+
+
+from rest_framework.routers import DefaultRouter
+
+router = DefaultRouter()
+router.register("", StudentViewSet)
+"""
+    get all students  ----> GET:/api/mm
+    post new student ----> POST: /api/mm
+    
+    g
+
+
+"""
+
+
+
+
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('students/', include("students.urls"))
+    path('students/', include("students.urls")),
+    path('api/', include(router.urls))
 ]

@@ -28,3 +28,44 @@ def student_api(request):
             return Response(student.data, status=status.HTTP_201_CREATED)
 
         return Response(student.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+#### Show , edit , delete
+
+def get_student_object_or_none(model, id):
+    try:
+        student = model.objects.get(pk=id)
+    except:
+        return None
+
+    return student
+
+
+
+
+
+@api_view(["GET", "PUT", "DELETE"])
+def student_operations(request, id):
+    student = get_student_object_or_none(Student, id)
+    if request.method == "GET":
+        if student:
+            serialized_student = StudentSerilalizer(student)
+            return Response(serialized_student.data, status=status.HTTP_200_OK)
+        return Response({"found":0}, status=status.HTTP_404_NOT_FOUND)
+
+    elif request.method == "PUT":
+        if student:
+            serialized_student = StudentSerilalizer(student, data=request.data)
+            if serialized_student.is_valid():
+                serialized_student.save()
+                return Response(serialized_student.data, status=status.HTTP_200_OK)
+            else:
+                return Response(serialized_student.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({"found":1}, status=status.HTTP_400_BAD_REQUEST)
+
+    elif request.method == "DELETE":
+        if student:
+            student.delete()
+            return Response({"deleted":1}, status=status.HTTP_204_NO_CONTENT)
+        return Response({"found": 0}, status=status.HTTP_205_RESET_CONTENT)
